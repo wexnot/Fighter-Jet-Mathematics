@@ -2,7 +2,7 @@
 Program dedicated to run fighter jet simulations and test fighter jet AI
 
 <html>
-  <title>Learning from vecotrial principals and ai creation</title>
+  <header>Learning from vecotrial principals and ai creation</header>
   <body>
     <p>first we will learn how we proceed in viewing the simulations and what will we be simulating</p>
   </body>
