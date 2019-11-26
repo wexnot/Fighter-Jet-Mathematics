@@ -1,5 +1,6 @@
 from random import randint as rt
 import math
+#import bpy
 
 class Fighter:
     """Fighter class that can calculate vectors and instanciate simulations"""
@@ -11,36 +12,24 @@ class Fighter:
         self.speed = speed
 
     def radian_angle(self, mx, my, mz, x, y, z):
-        #these are the two dimensional parameters
-        hypotenuse = math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip((mx, my), (x, y))))
-        opposite = y - my
-        adjacent = x - mx
-        #these are the three dimensional parameters
-        zypotenuse = math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip((mx, my, mz), (x, y, z))))
-        print(zypotenuse)
-        zopposite = z - mz
-        print(zopposite)
+        self.missile_speed = self.speed + 1
+        dx = x - mx
+        dy = y - my
+        dz = z - mz
+        print(dx, dy, dz)
 
-        try:
-            self.vertical = math.sin(math.asin(opposite/hypotenuse))
-            self.horizontal = math.cos(math.acos(adjacent/hypotenuse))
-        except ZeroDivisionError:
-            self.vertical = 0
-            self.horizontal = 0
-        else:
-            pass
-
-        try:
-            self.zvertical = math.sin(math.asin(zopposite/zypotenuse))
-        except ZeroDivisionError:
-            self.zvertical = 0
-        else:
-            pass
+        d = math.sqrt(dx*dx + dy*dy + dz*dz)
+        self.distance = d
+        print('distance', d)
+        self.horizontal = dx/d * self.missile_speed
+        self.vertical = dy/d * self.missile_speed
+        self.deph = dz/d * self.missile_speed
+        #print(self.horizontal, self.vertical, self.deph)
 
     def simulation(self, x=5, y=5, z=5):
-        missile_x = 3
+        missile_x = 8
         missile_y = 8
-        missile_z = 2
+        missile_z = 8
 
         while True:
             self.radian_angle(missile_x, missile_y, missile_z, x, y, z)
@@ -49,17 +38,17 @@ class Fighter:
             print('missile position is ({}, {}, {})'.format(missile_x, missile_y, missile_z))
             print('x distance is {}, y is {} and z is {}'.format(abs(missile_x - x), abs(missile_y - y), abs(missile_z - z)))
 
-            if missile_x < x + 1 and missile_x > x - 1 and missile_y < y + 1 and missile_y > y - 1:
+            if self.distance < 1:
                 print('done didly done')
                 break
             else:
-                missile_y += self.vertical
-                #print('it moved in y by', self.vertical)
                 missile_x += self.horizontal
-                #print('it moved in x by', self.horizontal)
-                missile_z += self.zvertical
+                missile_y += self.vertical
+                missile_z += self.deph
                 continue
 
-harrier = Fighter('Harrier royal navy', 'Harrier', True, False, 600)
+harrier = Fighter('Harrier royal navy', 'Harrier', True, False, 0)
 
 harrier.simulation()
+
+#print(bpy.data)
