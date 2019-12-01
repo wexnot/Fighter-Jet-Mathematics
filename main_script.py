@@ -1,68 +1,92 @@
-from random import randint as rt
+from random import randint
+import mathutils
 import math
 import bpy
 
-class Fighter:
-    """Fighter class that can calculate vectors and instanciate simulations"""
-    def __init__(self, name, series, stovl, vtol, speed):
+class Jet:
+    jet_movements = []
+    x = 5
+    y = 5
+    z = 5
+
+    def __init__(self, name, speed):
         self.name = name
-        self.series = series
-        self.stovl = stovl
-        self.vtol = vtol
         self.speed = speed
 
-    def radian_angle(self, mx, my, mz, x, y, z):
-        self.missile_speed = self.speed + 1
-        dx = x - mx
-        dy = y - my
-        dz = z - mz
-        #print(dx, dy, dz)
+    def vector(self):
+        Jet.jet_movements.append((self.x, self.y, self.z))
+        self.y += self.speed
 
-        d = math.sqrt(dx*dx + dy*dy + dz*dz)
-        self.distance = d
-        #print('distance', d)
-        self.horizontal = dx/d * self.missile_speed
-        self.vertical = dy/d * self.missile_speed
-        self.deph = dz/d * self.missile_speed
-        #print(self.horizontal, self.vertical, self.deph)
+class Missile:
+    missile_movements = []
+    missile_rotations = []
+    x = 8
+    y = 3
+    z = 0
 
-    def simulation(self, x=5, y=5, z=5):
-        missile_x = 8
-        missile_y = 8
-        missile_z = 8
-        
-        movements = []
-        mposition = (missile_x, missile_y, missile_z)
+    def __init__(self, target):
+        self.target = target
+        self.speed = target.speed + 1
 
+    def simulation(self):
         while True:
-            self.radian_angle(missile_x, missile_y, missile_z, x, y, z)
-            mposition = (missile_x, missile_y, missile_z)
-            movements.append(mposition)
+            dx = self.target.x - self.x
+            dy = self.target.y - self.y
+            dz = self.target.z - self.z
 
-            #print('Fighter jet position is ({}, {}, {})'.format(x, y, z))
-            #print('missile position is ({}, {}, {})'.format(missile_x, missile_y, missile_z))
-            #print('x distance is {}, y is {} and z is {}'.format(abs(missile_x - x), abs(missile_y - y), abs(missile_z - z)))
+            self.missile_movements.append((self.x, self.y, self.z))
+            print("Jet location:", self.target.x, self.target.y)
+            print("Missile location:", self.x, self.y, self.target.z)
 
-            if self.distance < 1:
-                print('done didly done')
-                return movements
+            d = math.sqrt(dx*dx + dy*dy + dz*dz)
+
+            xmove = dx/d * self.speed
+            ymove = dy/d * self.speed
+            zmove = dz/d * self.speed
+
+            jev = mathutils.Vector((self.target.x, self.target.y, self.target.z))
+            jeq = jev.to_track_quat()
+            jee = jeq.to_euler()
+            self.missile_rotations.append(tuple(jee))
+
+            if d < 1:
+                print("done didly done")
                 break
             else:
-                missile_x += self.horizontal
-                missile_y += self.vertical
-                missile_z += self.deph
+                self.x += xmove
+                self.y += ymove
+                self.z += zmove
+                self.target.vector()
                 continue
 
-harrier = Fighter('Harrier royal navy', 'Harrier', True, False, 0)
+harrier = Jet("Harrier", 1)
+harrier.x = 100
+harrier.y = 100
+harrier.z = 100
 
-#harrier.simulation()
-jet = bpy.data.objects["Cube"]
-movements = harrier.simulation()
+dunning = Missile(harrier)
 
-frame_num = 0
+dunning.simulation()
 
-for position in movements:
-    bpy.context.scene.frame_set(frame_num)
-    jet.location = position
-    jet.keyfram_insert(data_path="location", index = -1)
-    frame_num += 20
+simissile = bpy.data.objects["Cube"]
+sim_jet = bpy.data.objects["Cone"]
+
+def porting(point, matrices, cat=True):
+    frame_num = 0
+
+    for x in matrices:
+        bpy.context.scene.frame_set(frame_num)
+        if cat == True:
+            point.location = x
+            point.keyframe_insert(data_path="location", index = -1)
+        else:
+            point.rotation_euler = x
+            point.keyframe_insert(data_path="rotation_euler", index = -1)
+
+        frame_num += 5
+
+    bpy.context.scene.frame_end = frame_num - 5
+
+porting(simissile, dunning.missile_movements)
+porting(sim_jet, harrier.jet_movements)
+porting(simissile, dunning.missile_rotations, False)
