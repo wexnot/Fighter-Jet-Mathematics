@@ -15,7 +15,7 @@ class Jet:
 
     def vector(self):
         Jet.jet_movements.append((self.x, self.y, self.z))
-        self.y += self.speed
+        self.x += self.speed
 
 class Missile:
     missile_movements = []
