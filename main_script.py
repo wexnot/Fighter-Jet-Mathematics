@@ -7,7 +7,7 @@ import numpy as np
 class Jet:
 
     jet_movements = []
-    cartesian = np.array((5,5,5))
+    cartesian = np.array((8,3,6))
 
     def __init__(self, name, speed):
         # Name does not affect the outcome
@@ -97,9 +97,6 @@ class Missile:
 #         bpy.context.scene.frame_end = frame_num - 5
 
 harrier = Jet("Harrier", 1)
-harrier.x = 8
-harrier.y = 3
-harrier.z = 6
 
 dunning = Missile(harrier)
 dunning.simulation()
